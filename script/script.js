@@ -40,6 +40,9 @@ const labelBalance = document.querySelector(".balance__value");
 const labelSumIn = document.querySelector(".summary__value--in");
 const labelSumOut = document.querySelector(".summary__value--out");
 const labelSumInterest = document.querySelector(".summary__value--interest");
+const labelSumInterestRate = document.querySelector(
+    ".summary__value--interest--rate"
+);
 const labelTimer = document.querySelector(".timer");
 
 const containerApp = document.querySelector(".app");
@@ -61,7 +64,6 @@ const inputClosePin = document.querySelector(".form__input--pin");
 
 //variables-->
 let currentAccount;
-let interest;
 
 //event listeners-->
 
@@ -77,49 +79,78 @@ btnLogin.addEventListener("click", function (e) {
         inputLoginPin.value = "";
     }
     // console.log(currentAccount);
-    if (currentAccount?.pin === Number(inputLoginPin.value)) {
-        containerApp.style.visibility = "visible";
-        labelWelcome.textContent = `Welcome back, ${
-            currentAccount.owner.split(" ")[0]
-        }`;
-        inputLoginUsername.value = "";
-        inputLoginPin.value = "";
-
-        //display transactions
-        displayMovements(currentAccount.movements);
-        //display summary
-        displaySummary(currentAccount);
-        //display balance
-        displayBalance(currentAccount);
-    }
-    //if pin is wrong
     else {
-        alert("Wrong PIN");
-        inputLoginPin.value = "";
+        if (currentAccount.pin === Number(inputLoginPin.value)) {
+            containerApp.style.display = "grid";
+            labelWelcome.textContent = `Welcome back, ${
+                currentAccount.owner.split(" ")[0]
+            }`;
+            inputLoginUsername.value = "";
+            inputLoginPin.value = "";
+
+            updateUI(currentAccount);
+        }
+        //if pin is wrong
+        else {
+            alert("Wrong PIN");
+            inputLoginPin.value = "";
+        }
     }
 });
 
-//functions-->
+btnTransfer.addEventListener("click", function (e) {
+    e.preventDefault();
 
-// function to add transaction history
-const displayMovements = function (movements) {
-    containerMovements.innerHTML = " ";
+    const amount = Number(inputTransferAmount.value);
+    const receiverAccount = accounts.find(
+        (acc) => acc.username === inputTransferTo.value
+    );
 
-    movements.forEach(function (mov, i) {
-        const type = mov > 0 ? "deposit" : "withdrawal";
+    if (!receiverAccount) alert("User does not exist");
+    if (amount > currentAccount.balance) alert("Insufficient Funds!");
 
-        //html template to be added
-        const html = `
-        <div class="movements__row">
-        <div class="movements__type movements__type--${type}">${
-            i + 1
-        } ${type}</div>
-        <div class="movements__date">0 days ago</div>
-        <div class="movements__value">${mov} &#8377;</div>
-        </div>`;
-        containerMovements.insertAdjacentHTML("afterbegin", html);
-    });
-};
+    if (
+        amount > 0 &&
+        amount <= currentAccount.balance &&
+        receiverAccount?.username !== currentAccount.username
+    ) {
+        currentAccount.movements.push(-amount);
+        receiverAccount.movements.push(amount);
+
+        updateUI(currentAccount);
+        setTimeout(() => alert("Transfer Successful!"), 500);
+    }
+    //clear the elements
+    inputTransferAmount.value = inputTransferTo.value = "";
+});
+
+btnClose.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    if (
+        inputCloseUsername.value === currentAccount.username &&
+        currentAccount.pin === Number(inputClosePin.value)
+    ) {
+        const index = accounts.findIndex(
+            (acc) => (acc.username = inputCloseUsername.value)
+        );
+        // console.log(index);
+        accounts.splice(index, 1);
+        // console.log(accounts);
+        containerApp.style.display = "none";
+
+        inputCloseUsername.value = inputClosePin.value = "";
+        
+        labelWelcome.textContent = `Log in to access your account`;
+
+        setTimeout(() => alert("Account deleted successfully!"), 500);
+    } else {
+        inputCloseUsername.value = inputClosePin.value = "";
+        setTimeout(() => alert("Wrong input!"), 500);
+    }
+});
+
+//functions section-->
 
 //function to create username for accounts as initials of the name-->
 //for each user we create a new property username
@@ -150,19 +181,49 @@ username(accounts);
 //     });
 // };
 
+//function to display the details of account
+const updateUI = function (account) {
+    //display transactions
+    displayMovements(account.movements);
+    //display summary
+    displaySummary(account);
+    //display balance
+    displayBalance(account);
+};
+
+// function to add transaction history
+const displayMovements = function (movements) {
+    containerMovements.innerHTML = " ";
+
+    movements.forEach(function (mov, i) {
+        const type = mov > 0 ? "deposit" : "withdrawal";
+
+        //html template to be added
+        const html = `
+        <div class="movements__row">
+        <div class="movements__type movements__type--${type}">${
+            i + 1
+        } ${type}</div>
+        <div class="movements__date">0 days ago</div>
+        <div class="movements__value">${mov} &#8377;</div>
+        </div>`;
+        containerMovements.insertAdjacentHTML("afterbegin", html);
+    });
+};
+
 //function to display total balance using reduce() method-->
 const displayBalance = function (account) {
-    let balance = account.movements.reduce(function (acc, mov) {
+    //creating a balance key in account object to store total balance
+    account.balance = account.movements.reduce(function (acc, mov) {
         return acc + mov;
     }, 0);
-    //aliter using arrow function
-    // const balance = movements.reduce((acc, mov) => acc + mov, 0);
 
-    // console.log(interest);
-    //to add interest in total balance
-    balance += interest;
-    // console.log(balance);
-    labelBalance.textContent = `${balance} ₹`;
+    // account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
+
+    //adding interest in total balance
+    account.balance += account.interest;
+
+    labelBalance.textContent = `${account.balance} ₹`;
 };
 
 //function to display balance summary-->
@@ -179,9 +240,13 @@ const displaySummary = function (account) {
     // console.log(debit);
     labelSumOut.textContent = `${Math.abs(debit)} ₹`;
 
-    interest = account.movements
+    const interest = account.movements
         .filter((mov) => mov > 0)
         .map((deposit) => (deposit * account.interestRate) / 100)
         .reduce((acc, int) => acc + int, 0);
+    //creating a interest key in account object
+    account.interest = interest;
+
     labelSumInterest.textContent = `${interest} ₹`;
+    labelSumInterestRate.textContent = `(${account.interestRate}%)`;
 };
