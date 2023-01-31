@@ -24,13 +24,14 @@ nav {
 }
 
 .title {
-    width: 26.5%;
+    width: 31%;
 }
 
 .welcome {
     font-size: 1.8rem;
     font-weight: 500;
     transition: ease-in 1s;
+    min-width: 100%;
 }
 
 .logo {
@@ -59,6 +60,7 @@ nav {
 
 .login {
     display: flex;
+    width: 30%;
 }
 
 .login__input {
@@ -114,7 +116,7 @@ nav {
     grid-template-rows: auto repeat(3, 15rem) auto;
     gap: 2rem;
     transition: all 1s;
-    visibility: hidden;
+    display: none;
 }
 
 .balance {
@@ -208,8 +210,13 @@ nav {
 }
 
 .summary__value--in,
-.summary__value--interest {
+.summary__value--interest,
+.summary__value--interest--rate {
     color: #66c873;
+}
+.summary__value--interest--rate {
+    font-size: 1.5rem;
+    margin-left: -2rem;
 }
 
 .summary__value--out {
@@ -259,7 +266,7 @@ h2 {
     gap: 0.4rem 1rem;
 }
 
-/* Exceptions for interest */
+/* Exception for interest */
 .form.form--loan {
     grid-template-columns: 2.5fr 1fr 2.5fr;
 }
