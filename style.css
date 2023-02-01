@@ -322,3 +322,27 @@ h2 {
 .timer {
     font-weight: 600;
 }
+
+/* Information */
+.section-info {
+    display: grid;
+    place-items: center;
+    margin: 20rem auto;
+    width: 100%;
+    transition: all 0.5s;
+    /* display: none; */
+}
+
+.info {
+    padding: 2rem;
+}
+
+.info > p {
+    font-size: 12px;
+}
+
+.info > ul > li {
+    font-size: 15px;
+    font-weight: 700;
+    padding: 5px;
+}

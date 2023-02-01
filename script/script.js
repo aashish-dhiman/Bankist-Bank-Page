@@ -47,6 +47,7 @@ const labelTimer = document.querySelector(".timer");
 
 const containerApp = document.querySelector(".app");
 const containerMovements = document.querySelector(".movements");
+const containerInfo = document.querySelector(".section-info");
 
 const btnLogin = document.querySelector(".login__btn");
 const btnTransfer = document.querySelector(".form__btn--transfer");
@@ -83,6 +84,7 @@ btnLogin.addEventListener("click", function (e) {
     else {
         if (currentAccount.pin === Number(inputLoginPin.value)) {
             containerApp.style.display = "grid";
+            containerInfo.style.display = "none";
             labelWelcome.textContent = `Welcome back, ${
                 currentAccount.owner.split(" ")[0]
             }`;
@@ -153,6 +155,7 @@ btnClose.addEventListener("click", function (e) {
         accounts.splice(index, 1);
         // console.log(accounts);
         containerApp.style.display = "none";
+        containerInfo.style.display = "grid";
 
         inputCloseUsername.value = inputClosePin.value = "";
 
