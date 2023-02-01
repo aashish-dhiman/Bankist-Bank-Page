@@ -64,6 +64,7 @@ const inputClosePin = document.querySelector(".form__input--pin");
 
 //variables-->
 let currentAccount;
+let sorted = false;
 
 //event listeners-->
 
@@ -164,6 +165,14 @@ btnClose.addEventListener("click", function (e) {
     }
 });
 
+btnSort.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    displayMovements(currentAccount.movements, !sorted);
+    //setting sorted variable to false if true or vice versa
+    sorted = !sorted;
+});
+
 //functions section-->
 
 //function to create username for accounts as initials of the name-->
@@ -206,10 +215,16 @@ const updateUI = function (account) {
 };
 
 // function to add transaction history
-const displayMovements = function (movements) {
+const displayMovements = function (movements, sort) {
     containerMovements.innerHTML = " ";
 
-    movements.forEach(function (mov, i) {
+    //checking if sort is true--slice() will create a new copy of the array
+    //as sort() mutates the original array
+    const newMovements = sort
+        ? movements.slice().sort((a, b) => a - b)
+        : movements;
+
+    newMovements.forEach(function (mov, i) {
         const type = mov > 0 ? "deposit" : "withdrawal";
 
         //html template to be added
