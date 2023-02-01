@@ -24,8 +24,8 @@ const account3 = {
 
 const account4 = {
     owner: "Ujjawal Saini",
-    movements: [4300, 10000, 700, -500, 9000],
-    interestRate: 1,
+    movements: [4300, 10000, 700, -500, 9000, 10000, -7000],
+    interestRate: 1.1,
     pin: 4444,
 };
 
@@ -124,6 +124,20 @@ btnTransfer.addEventListener("click", function (e) {
     inputTransferAmount.value = inputTransferTo.value = "";
 });
 
+btnLoan.addEventListener("click", function (e) {
+    e.preventDefault();
+    let amount = Number(inputLoanAmount.value);
+    console.log(amount);
+    if (amount > 0) {
+        currentAccount.movements.push(amount);
+
+        updateUI(currentAccount);
+    } else {
+        alert("Not a valid amount!");
+    }
+    inputLoanAmount.value = "";
+});
+
 btnClose.addEventListener("click", function (e) {
     e.preventDefault();
 
@@ -140,7 +154,7 @@ btnClose.addEventListener("click", function (e) {
         containerApp.style.display = "none";
 
         inputCloseUsername.value = inputClosePin.value = "";
-        
+
         labelWelcome.textContent = `Log in to access your account`;
 
         setTimeout(() => alert("Account deleted successfully!"), 500);
