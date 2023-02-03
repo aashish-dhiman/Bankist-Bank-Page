@@ -83,7 +83,6 @@ const labelSumInterestRate = document.querySelector(
     ".summary__value--interest--rate"
 );
 const labelMovementsDate = document.querySelectorAll(".movements__date");
-const labelLogout = document.querySelector(".log-out");
 
 const containerApp = document.querySelector(".app");
 const containerMovements = document.querySelector(".movements");
@@ -94,6 +93,7 @@ const btnTransfer = document.querySelector(".form__btn--transfer");
 const btnLoan = document.querySelector(".form__btn--loan");
 const btnClose = document.querySelector(".form__btn--close");
 const btnSort = document.querySelector(".btn--sort");
+const btnLogout = document.querySelector(".btn--logout");
 
 const inputLoginUsername = document.querySelector(".login__input--user");
 const inputLoginPin = document.querySelector(".login__input--pin");
@@ -130,8 +130,11 @@ btnLogin.addEventListener("click", function (e) {
             labelWelcome.textContent = `Welcome back, ${
                 currentAccount.owner.split(" ")[0]
             }`;
-            inputLoginUsername.value = "";
-            inputLoginPin.value = "";
+
+            inputLoginUsername.style.cursor = "not-allowed";
+            inputLoginPin.style.cursor = "not-allowed";
+            inputLoginUsername.setAttribute("readonly", "readonly");
+            inputLoginPin.setAttribute("readonly", "readonly");
 
             updateUI(currentAccount);
         }
@@ -146,7 +149,7 @@ btnLogin.addEventListener("click", function (e) {
 btnTransfer.addEventListener("click", function (e) {
     e.preventDefault();
 
-    const amount = Number(inputTransferAmount.value);
+    const amount = +Number(inputTransferAmount.value).toFixed(2);
     const receiverAccount = accounts.find(
         (acc) => acc.username === inputTransferTo.value
     );
@@ -179,9 +182,8 @@ btnTransfer.addEventListener("click", function (e) {
 
 btnLoan.addEventListener("click", function (e) {
     e.preventDefault();
-    let amount = Number(inputLoanAmount.value);
-    // let amount = +(inputLoanAmount.value);
-    // console.log(amount);
+    let amount = +Number(inputLoanAmount.value).toFixed(2);
+
     if (amount > 0) {
         currentAccount.movements.push(amount);
 
@@ -234,6 +236,23 @@ btnSort.addEventListener("click", function (e) {
     sorted = !sorted;
 });
 
+btnLogout.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    containerApp.style.display = "none";
+    containerInfo.style.display = "grid";
+    inputLoginUsername.value = "";
+    inputLoginPin.value = "";
+
+    inputLoginUsername.style.cursor = "text";
+    inputLoginPin.style.cursor = "text";
+    inputLoginUsername.removeAttribute("readonly");
+    inputLoginPin.removeAttribute("readonly");
+    labelWelcome.textContent = `Log in to access your account`;
+
+    setTimeout(() => alert("Logged out successfully!"), 300);
+});
+
 //functions section-->
 
 //function to create username for accounts as initials of the name-->
@@ -252,7 +271,7 @@ const username = function (account) {
 username(accounts);
 // console.log(accounts);
 
-//aliter to compute username
+//aliter to compute username-->
 // const username = function (account) {
 //     account.forEach(function (user) {
 //         user.username = user.owner
@@ -332,12 +351,10 @@ const displayBalance = function (account) {
         return acc + mov;
     }, 0);
 
-    //aliter--> account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
-
     //adding interest in total balance
     account.balance += account.interest;
 
-    labelBalance.textContent = `${account.balance} ₹`;
+    labelBalance.textContent = `${account.balance.toFixed(2)} ₹`;
 };
 
 //function to display balance summary-->
@@ -359,9 +376,9 @@ const displaySummary = function (account) {
         .map((deposit) => (deposit * account.interestRate) / 100)
         .reduce((acc, int) => acc + int, 0);
     //creating a interest key in account object
-    account.interest = interest;
+    account.interest = +interest.toFixed(2);
 
-    labelSumInterest.textContent = `${interest} ₹`;
+    labelSumInterest.textContent = `${account.interest} ₹`;
     labelSumInterestRate.textContent = `(${account.interestRate}%)`;
 };
 
