@@ -82,7 +82,8 @@ const labelSumInterest = document.querySelector(".summary__value--interest");
 const labelSumInterestRate = document.querySelector(
     ".summary__value--interest--rate"
 );
-const labelTimer = document.querySelector(".timer");
+const labelMovementsDate = document.querySelectorAll(".movements__date");
+const labelLogout = document.querySelector(".log-out");
 
 const containerApp = document.querySelector(".app");
 const containerMovements = document.querySelector(".movements");
@@ -278,33 +279,49 @@ const updateUI = function (account) {
 const displayMovements = function (account, sort) {
     containerMovements.innerHTML = " ";
 
-    //checking if sort is true--slice() will create a new copy of the array
-    //as sort() mutates the original array
+    //checking if sort is true-->
+    //slice() will create a new copy of the array as sort() mutates the original array
     const newMovements = sort
         ? account.movements.slice().sort((a, b) => a - b)
         : account.movements;
-    const newMovementsDates = sort
-        ? account.movementsDates.slice().sort()
-        : account.movementsDates;
 
     newMovements.forEach(function (mov, i) {
         const type = mov > 0 ? "deposit" : "withdrawal";
 
-        const date = new Date(newMovementsDates[i]);
-        const day = `${date.getDate()}`.padStart(2, 0);
-        const month = `${date.getMonth() + 1}`.padStart(2, 0);
-        const year = date.getFullYear();
+        const movDate = new Date(account.movementsDates[i]);
+        const date = new Intl.DateTimeFormat("en-IN", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+        }).format(movDate);
 
-        //html template to be added
-        const html = `
+        // const day = `${date.getDate()}`.padStart(2, 0);
+        // const month = `${date.getMonth() + 1}`.padStart(2, 0);
+        // const year = date.getFullYear();
+
+        //if sorted we don't display date
+        if (sort) {
+            //html template to be added
+            const html = `
         <div class="movements__row">
         <div class="movements__type movements__type--${type}">${
-            i + 1
-        } ${type}</div>
-        <div class="movements__date">${day}/${month}/${year}</div>
+                i + 1
+            } ${type}</div>
         <div class="movements__value">${mov} &#8377;</div>
         </div>`;
-        containerMovements.insertAdjacentHTML("afterbegin", html);
+            containerMovements.insertAdjacentHTML("afterbegin", html);
+        } else {
+            //html template to be added
+            const html = `
+        <div class="movements__row">
+        <div class="movements__type movements__type--${type}">${
+                i + 1
+            } ${type}</div>
+        <div class="movements__date">${date}</div>
+        <div class="movements__value">${mov} &#8377;</div>
+        </div>`;
+            containerMovements.insertAdjacentHTML("afterbegin", html);
+        }
     });
 };
 
@@ -315,7 +332,7 @@ const displayBalance = function (account) {
         return acc + mov;
     }, 0);
 
-    // account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
+    //aliter--> account.balance = account.movements.reduce((acc, mov) => acc + mov, 0);
 
     //adding interest in total balance
     account.balance += account.interest;
@@ -348,20 +365,35 @@ const displaySummary = function (account) {
     labelSumInterestRate.textContent = `(${account.interestRate}%)`;
 };
 
+//function to display current date
 const displayDate = function () {
     const date = new Date();
-    // console.log(date);
-    const day = `${date.getDate()}`.padStart(2, 0);
-    const month = `${date.getMonth() + 1}`.padStart(2, 0);
-    const year = date.getFullYear();
 
-    const hour = `${
-        date.getHours() > 12 ? date.getHours() - 12 : date.getHours()
-    }`.padStart(2, 0);
+    //object to display what details on screen
+    const object = {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    };
 
-    const minute = `${date.getMinutes()}`.padStart(2, 0);
-
-    labelDate.textContent = `${day}/${month}/${year} - ${hour}:${minute}`;
+    //displaying date using international API
+    labelDate.textContent = new Intl.DateTimeFormat("en-IN", object).format(
+        date
+    );
 
     setTimeout(displayDate, 1000);
+
+    // const day = `${date.getDate()}`.padStart(2, 0);
+    // const month = `${date.getMonth() + 1}`.padStart(2, 0);
+    // const year = date.getFullYear();
+
+    // const hour = `${
+    //     date.getHours() > 12 ? date.getHours() - 12 : date.getHours()
+    // }`.padStart(2, 0);
+
+    // const minute = `${date.getMinutes()}`.padStart(2, 0);
+
+    // labelDate.textContent = `${day}/${month}/${year} - ${hour}:${minute}`;
 };
